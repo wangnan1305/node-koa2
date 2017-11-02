@@ -3,51 +3,27 @@ const Koa = require("koa");
 const nunjucks = require('nunjucks');
 const bodyParser = require("koa-bodyparser");
 const controller = require("./controller");
-const staticFiles = require("./static-files");
+const template = require("./template");
 const app = new Koa();
-
-app.use(staticFiles('/static/', __dirname + '/static'));
-app.use(bodyParser());
+const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(async (ctx, next) => {
     console.log(`${ctx.request.method} ${ctx.request.url}`);
     await next();
 })
-
-function createEnv(path, opts) {
-    let autoescape = opts.autoescape || true,
-        noCache = opts.noCache || false,
-        watch = opts.watch || false,
-        throwOnUndefined = opts.throwOnUndefined || false;
-    let env = new nunjucks.Environment(
-        new nunjucks.FileSystemLoader('views', {
-            noCache: noCache,
-            watch: watch
-        }), {
-            autoescape: autoescape,
-            throwOnUndefined: throwOnUndefined
-        }
-    );
-    if (opts.filters) {
-        for (var f in opts.filters) {
-            env.addFilter(f, opts.filters[f]);
-        }
-    }
-    return env;
+if(!isProduction){
+    let staticFiles = require("./static-files");
+    app.use(staticFiles('/static/', __dirname + '/static'));
 }
+console.log('isProduction='+isProduction+'process.env.NODE_ENV'+process.env.NODE_ENV);
 
-var env = createEnv('views', {
-    watch: true,
-    filters: {
-        hex: function (n) {
-            return '0x' + n.toString(16);
-        }
-    }
-})
+app.use(bodyParser());
 
-let s = env.render('index.html', { name: '<script>alert("小明")</script>' });
+app.use(template('views',{
+    noCache:!isProduction,
+    watch:!isProduction
+}));
 
-console.log(s)
 app.use(controller())
 
 app.listen(8300);
