@@ -21,3 +21,4 @@ function staticFiles(url,dir){
         }
     }
 }
+module.exports = staticFiles;

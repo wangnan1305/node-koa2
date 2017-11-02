@@ -15,6 +15,5 @@ const fn_login = async (ctx, next) => {
 }
 
 module.exports = {
-    'get /': fn_index,
     'post /login': fn_login
 }

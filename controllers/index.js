@@ -3,3 +3,7 @@ const fn_index = async(ctx,next) => {
        title:'Welcome' 
     })
 }
+
+module.exports = {
+    'get /': fn_index,
+}
