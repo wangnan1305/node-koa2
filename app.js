@@ -3,7 +3,10 @@ const Koa = require("koa");
 const nunjucks = require('nunjucks');
 const bodyParser = require("koa-bodyparser");
 const controller = require("./controller");
+const staticFiles = require("./static-files");
 const app = new Koa();
+
+app.use(staticFiles('/static/', __dirname + '/static'));
 app.use(bodyParser());
 
 app.use(async (ctx, next) => {
